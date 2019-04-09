@@ -45,11 +45,8 @@ def getRectangle():
         index = index + 1
 
 
-        # If the listener catches the esc key close all the windows
-        key = cv2.waitKey()
-        if key == 27:
-            break
-
+    cv2.imshow('captcha_result', img)
+    cv2.waitKey()
 
 
 
