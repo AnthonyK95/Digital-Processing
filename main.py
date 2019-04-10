@@ -35,17 +35,17 @@ def getRectangle():
         if w < 35 and h < 35:
             continue
 
-            # draw rectangle around contour on original image
+        # draw rectangle around contour on original image
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)
         # cv2.resizeWindow('Image', 600, 600)
-        cropped = img_final[y:y + h, x: x + w]
+      #  cropped = img_final[y:y + h, x: x + w]
 
-        s = file_name + '/' + str(index) + '.jpg'
-        cv2.imwrite(s, cropped)
-        index = index + 1
+      #  s = file_name + '/' + str(index) + '.jpg'
+        # cv2.imwrite(s, cropped)
+        # index = index + 1
 
 
-    cv2.imshow('captcha_result', img)
+    cv2.imshow('Contour', img)
     cv2.waitKey()
 
 
