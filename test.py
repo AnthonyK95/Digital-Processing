@@ -1,41 +1,41 @@
-# Is working not tested with card
+# Todo Upading with the rectangle implementation
+# Wokring Progress On Recognize The Pattern Of The User
 
-import numpy as np
 import cv2
+import numpy as np
+
+# Creating the Fake OCR
+def ocr():
+    print("Starting the ocr matching")
 
 
+# Starting the Video Camera=> Default Value
 cap = cv2.VideoCapture(0)
-
-
+# While this is Valid Read the data from camera
 while True:
-
     _, frame  = cap.read()
+    # Bluring the frame of the web cam
     blur = cv2.GaussianBlur(frame, (5, 5), 0)
-    hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
-    # lower = np.array([38, 86, 0])
-    # upper = np.array([121, 255, 255])
-    # mask = cv2.inRange(hsv, lower, upper)
-
-    ret, mask = cv2.threshold(hsv, 180, 255, cv2.THRESH_BINARY_INV)
-    # mask.astype('int')
-    image_final = cv2.bitwise_and(hsv, hsv, mask=mask)
-
+    # Grayscale the income blue frame
+    convertedColor = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+    # Adding threshold to the converte
+    ret, mask = cv2.threshold(convertedColor, 180, 255, cv2.THRESH_BINARY_INV)
+    image_final = cv2.bitwise_and(convertedColor, convertedColor, mask=mask)
     # Adding threshold for black text
-    # _, new_img = cv2.threshold(image_final, 180, 255, cv2.THRESH_BINARY)
-    ret, new_img = cv2.threshold(image_final, 180, 255, cv2.THRESH_BINARY)
+    _, new_img = cv2.threshold(image_final, 180, 255, cv2.THRESH_BINARY)
     kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
     dilated = cv2.dilate(new_img, kernel, iterations=9)
     contours = cv2.findContours(image_final, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2]
     print(contours)
     for c in contours:
         area = cv2.contourArea(c)
-
-        if area >= 5000:
-            cv2.drawContours(frame, [c], -1, (0, 255, 0), 3)
+        if area > 5000:
+            cv2.drawContours(frame, [c], -1, (255, 0, 255), 2)
             cv2.imshow('frame', frame)
+
+    # cv2.imshow('frame', frame)
     key = cv2.waitKey(1)
     if key == 27:
         break
-
 cap.release()
 cv2.destroyAllWindows()

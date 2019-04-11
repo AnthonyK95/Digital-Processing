@@ -1,32 +1,40 @@
-import numpy as np
+# Backup File
 import cv2
+import numpy as np
+
+# Creating the Fake OCR
+def ocr():
+    print("Starting the ocr matching")
 
 
+# Starting the Video Camera=> Default Value
 cap = cv2.VideoCapture(0)
-
+# While this is Valid Read the data from camera
 while True:
-	# Capture frame-by-frame
-	_, frame = cap.read()
-	blur = cv2.GaussianBlur(frame, (5, 5), 0)
-	# Our operations on the frame come here
-	gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
-	th2 = cv2.adaptiveThreshold(gray, 100, cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY, 11, 2)
+    _, frame  = cap.read()
+    # Bluring the frame of the web cam
+    blur = cv2.GaussianBlur(frame, (5, 5), 0)
+    # Grayscale the income blue frame
+    convertedColor = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+    # Adding threshold to the converte
+    ret, mask = cv2.threshold(convertedColor, 180, 255, cv2.THRESH_BINARY_INV)
+    image_final = cv2.bitwise_and(convertedColor, convertedColor, mask=mask)
+    # Adding threshold for black text
+    _, new_img = cv2.threshold(image_final, 180, 255, cv2.THRESH_BINARY)
+    kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+    dilated = cv2.dilate(new_img, kernel, iterations=9)
+    contours = cv2.findContours(image_final, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    print(contours)
+    for c in contours:
+        area = cv2.contourArea(c)
+        if area > 5000:
+            cv2.drawContours(frame, [c], -1, (0, 255, 0), 3)
+            cv2.imshow('frame', frame)
+            # After the showing start the OCR matching
+            ocr()
 
-	# _, thresh_img = cv2.adaptiveThreshold(gray, 80, 50, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-
-
-	contours = cv2.findContours(th2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2]
-	print(contours)
-
-	for c in contours:
-		area = cv2.contourArea(c)
-		if area > 5000:
-			cv2.drawContours(frame, [c], -1, (0, 255, 0), 3)
-			cv2.imshow('frame', frame)
-			# cv2.imshow("thresh", thresh_img)
-	if cv2.waitKey(1)  == 27:
-		break
-
-# When everything done, release the capture
+    key = cv2.waitKey(1)
+    if key == 27:
+        break
 cap.release()
 cv2.destroyAllWindows()
