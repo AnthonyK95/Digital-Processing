@@ -19,14 +19,15 @@ while True:
     # Grayscale the income blue frame
     convertedColor = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
     # Adding threshold to the converte
-    ret, mask = cv2.threshold(convertedColor, 180, 255, cv2.THRESH_BINARY_INV)
+    ret, mask = cv2.threshold(convertedColor, 140, 255, cv2.THRESH_BINARY)
     image_final = cv2.bitwise_and(convertedColor, convertedColor, mask=mask)
     # Adding threshold for black text
-    _, new_img = cv2.threshold(image_final, 180, 255, cv2.THRESH_BINARY)
-    kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
-    dilated = cv2.dilate(new_img, kernel, iterations=9)
+    # , new_img = cv2.threshold(image_final, 100, 255, cv2.THRESH_BINARY)
+    # Finding the contours inside the live feed
     contours = cv2.findContours(image_final, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    # Printing contours to see if the data match my logic
     print(contours)
+    # Looping inside the contours array
     for c in contours:
         area = cv2.contourArea(c)
         if area > 5000:
