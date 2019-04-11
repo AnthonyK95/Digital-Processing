@@ -4,7 +4,6 @@
 import cv2
 import numpy as np
 import glob
-import os
 
 def orc():
 
@@ -23,19 +22,19 @@ def orc():
     for tmp in template_data:
         (tH, tW) = tmp.shape[:2]
         cv2.imshow("Template", tmp)
-        cv2.waitKey(50)
+        cv2.waitKey(0)
         cv2.destroyAllWindows()
-        result = cv2.matchTemplate(test_image, tmp, cv2.TM_CCOEFF)
+        result = cv2.matchTemplate(test_image, tmp, cv2.TM_CCOEFF_NORMED)
         # min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
         # top_left = max_loc
         # bottom_right = (top_left[0] + tW, top_left[1] + tH)
         # cv2.rectangle(test_image, top_left, bottom_right, 255, 2)
-        threshold = 0.8
+        threshold = 0.412
         loc = np.where(result >= threshold)
         for pt in zip(*loc[::-1]):
             cv2.rectangle(test_image, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
 
-    cv2.imshow('Result', test_image)
+    cv2.imshow('Result', tmp)
     cv2.waitKey(0)
 
 
@@ -73,8 +72,7 @@ while True:
             cv2.imshow('frame', frame)
             cv2.waitKey(100)
             # Start Calling the
-            orc()
-    # cv2.waitKey(100)
+    #orc()
 
     key = cv2.waitKey(1)
     if key == 27:

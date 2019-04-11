@@ -1,83 +1,76 @@
-## Making all the files together
-import numpy as np
 import cv2
-import glob
+import numpy as np
+from os import listdir
 
-def ocr():
-    image = 'identify.png'
-    template_data = []
-    # make a list of all template images from a directory
-    files1 = glob.glob('cards\\*.png')
+# Declaring threshold
+matchingThreshold2 = 0.75
+matchingThreshold1 = 0.58
 
-    for myfile in files1:
-        image = cv2.imread(myfile, 0)
-        template_data.append(image)
+# Read Shape Templates
+heart = cv2.imread('cards/heart.png', 0)
+spade = cv2.imread('cards/spade.png', 0)
+diamond = cv2.imread('cards/diamond.png', 0)
+club = cv2.imread('cards/club.png', 0)
 
-    test_image = cv2.imread('identify.png')
-    test_image = cv2.cvtColor(test_image, cv2.COLOR_BGR2GRAY)
-
-    # loop for matching
-    for tmp in template_data:
-        (tH, tW) = tmp.shape[:2]
-        cv2.imshow("Template", tmp)
-        cv2.waitKey(100)
-        cv2.destroyAllWindows()
-        result = cv2.matchTemplate(test_image, tmp, cv2.TM_CCOEFF)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-        top_left = max_loc
-        bottom_right = (top_left[0] + tW, top_left[1] + tH)
-        cv2.rectangle(test_image, top_left, bottom_right, 255, 2)
-
-    cv2.imshow('Result', test_image)
-    cv2.waitKey(0)
+# Read Number Templates
+ace = cv2.imread('cards/ace.png', 0)
+two = cv2.imread('cards/two.png', 0)
+three = cv2.imread('cards/three.png', 0)
+four = cv2.imread('cards/four.png', 0)
+five = cv2.imread('cards/five.png', 0)
+six = cv2.imread('cards/six.png', 0)
+seven = cv2.imread('cards/seven.png', 0)
+eight = cv2.imread('cards/eight.png', 0)
+nine = cv2.imread('cards/nine.png', 0)
+ten = cv2.imread('cards/ten.png', 0)
+jack = cv2.imread('cards/jack.png', 0)
+queen = cv2.imread('cards/queen.png', 0)
+king = cv2.imread('cards/king.png', 0)
 
 
 
 
-cap = cv2.VideoCapture(0)
+# All the mana logos are about the same size
+w, h = spade.shape[::-1]
+nw, nh = king.shape[::-1]
 
+# Check &  Highlight the Result
+def checkingValues(color_template, gray, check):
+    results = cv2.matchTemplate(gray, color_template, cv2.TM_CCOEFF_NORMED)
+    locations = np.where(results >= matchingThreshold2)
+    for pt in zip(*locations[::-1]):
+        cv2.rectangle(check, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
 
-# While this is Valid Read the data from camera
+def checkingNums(color_template, gray, check):
+    results = cv2.matchTemplate(gray, color_template, cv2.TM_CCOEFF_NORMED)
+    locations = np.where(results >= matchingThreshold1)
+    for pt in zip(*locations[::-1]):
+        cv2.rectangle(check, pt, (pt[0] + nw, pt[1] + nh), (0, 0, 255), 2)
+
+# Looping Through Cases
 while True:
-    _, frame  = cap.read()
-    # Bluring the frame of the web cam
-    blur = cv2.GaussianBlur(frame, (5, 5), 0)
-    # Grayscale the Income Blue Frame
-    convertedColor = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
-    # Adding threshold for Black Text
-    img, mask = cv2.threshold(convertedColor, 180, 255, cv2.THRESH_BINARY)
-    image_final = cv2.bitwise_and(convertedColor, convertedColor, mask=mask)
-    # Finding the contours inside the Live Feed
-    contours = cv2.findContours(image_final, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
-    # Printing contours to see if the data match my logic
-    idx = 0
-    # Looping inside the contours array
-    for c in contours:
-        area = cv2.contourArea(c)
+    img_to_check = cv2.imread("all.png")
+    # blur1 = cv2.blur(img_to_check, (5, 5))
+    blur = cv2.medianBlur(img_to_check, 5)
+    # blur = cv2.GaussianBlur(img_to_check, (5, 5), 0)
 
 
-        if area > 5000:
-            peri = cv2.arcLength(c, True)
-            approx = cv2.approxPolyDP(c, 0.07 * peri, True)
-            cv2.drawContours(frame, [approx], -1, (255, 0, 255), 2)
-            x, y, w, h = cv2.boundingRect(c)
-                if w > 50 and h > 50:
-                    new_img = frame[y:y + h, x:x + w]
-                    cv2.imwrite('identify.png', new_img)
-                cv2.imshow('frame', frame)
+    img_gray = cv2.cvtColor(img_to_check, cv2.COLOR_BGR2GRAY)
+    imageGray = cv2.adaptiveThreshold(img_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 1)
+    checkingValues(heart, imageGray, img_to_check)
+    checkingValues(spade, imageGray, img_to_check)
+    checkingValues(club, imageGray, img_to_check)
+    checkingValues(diamond, imageGray, img_to_check)
+    checkingNums(eight, imageGray, img_to_check)
 
 
-            key = cv2.waitKey(1)
-            if key == 27:
-                break
 
-cap.release()
+
+
+
+
+    key = cv2.waitKey(0)
+    cv2.imshow("Template", img_to_check)
+    if key == 27:
+        break
 cv2.destroyAllWindows()
-
-
-
-
-
-if __name__ == "__main__":
-    thTEst()
-    # ocr()
